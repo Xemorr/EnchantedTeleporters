@@ -1,6 +1,7 @@
 # Enchanted Teleporters
 This plugin is best explained through a video!
-[Gif showing that punching teleports you in the direction you're looking, jumping sends you upwards, and sneaking sends you downwards](https://cdn.modrinth.com/data/cached_images/0347404d5fa24732ccdd85b50966bbd005472ab2.gif)
+
+![Gif showing that punching teleports you in the direction you're looking, jumping sends you upwards, and sneaking sends you downwards](https://cdn.modrinth.com/data/cached_images/0347404d5fa24732ccdd85b50966bbd005472ab2.gif)
 
 ## Config
 ```yaml
