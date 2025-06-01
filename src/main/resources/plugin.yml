@@ -4,6 +4,8 @@ main: me.xemor.enchantedTeleporters.EnchantedTeleporters
 api-version: '1.21'
 authors: [ Xemor_ ]
 folia-supported: true
+softdepend:
+  - Nexo
 libraries:
   - "com.fasterxml.jackson.core:jackson-core:2.18.0"
   - "com.fasterxml.jackson.core:jackson-databind:2.18.2"

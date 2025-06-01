@@ -1,7 +1,8 @@
 # This item can safely be changed without old teleporter items breaking.
 teleporter:
   # If you change the type from BEACON, the plugin will stop working.
-  # I'm planning on adding support for custom block plugins later.
+  # Install Nexo for custom block support, and then add the TELEPORTER mechanic to the blocks
+  # you want to act as teleporters.
   type: BEACON
   metadata:
     displayName: <light_purple>Teleporter

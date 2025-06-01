@@ -3,6 +3,8 @@ package me.xemor.enchantedTeleporters.events;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import me.xemor.enchantedTeleporters.EnchantedTeleporters;
+import me.xemor.enchantedTeleporters.comparators.TeleporterComparator;
+import me.xemor.enchantedTeleporters.comparators.VanillaTeleporterComparator;
 import me.xemor.enchantedTeleporters.configs.ConfigHandler;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -24,40 +26,35 @@ public class PlaceOrBreakTeleporter implements Listener {
     private EnchantedTeleporters plugin;
     @Inject
     private ConfigHandler configHandler;
+    @Inject
+    private TeleporterComparator comparator;
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onElevatorPlace(BlockPlaceEvent event) {
+        if (!(comparator instanceof VanillaTeleporterComparator comparator)) return;
         if (event.isCancelled()) return;
-        if (!isTeleporter(event.getItemInHand())) return;
+        if (!comparator.isTeleporter(event.getItemInHand())) return;
         Block block = event.getBlock();
         if (block.getState() instanceof Beacon beacon) {
-            beacon.getPersistentDataContainer().set(plugin.getTeleporterKey(), PersistentDataType.BOOLEAN, true);
+            beacon.getPersistentDataContainer().set(comparator.getTeleporterKey(), PersistentDataType.BOOLEAN, true);
             beacon.update();
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onElevatorBreak(BlockBreakEvent event) {
+        if (!(comparator instanceof VanillaTeleporterComparator comparator)) return;
         if (event.isCancelled()) return;
         Player player = event.getPlayer();
         if (player.getGameMode().equals(GameMode.CREATIVE)) return;
         Block block = event.getBlock();
-        if (isTeleporter(block)) {
+        if (comparator.isTeleporter(block)) {
             block.setType(Material.AIR);
-            block.getWorld().dropItemNaturally(block.getLocation(), configHandler.getTeleporter());
+            block.getWorld().dropItemNaturally(block.getLocation(), configHandler.getTeleporter(comparator));
             event.setCancelled(true);
         }
     }
 
-    private boolean isTeleporter(ItemStack item) {
-        return item.getPersistentDataContainer().has(plugin.getTeleporterKey());
-    }
 
-    private boolean isTeleporter(Block block) {
-        if (block.getState() instanceof Beacon beacon) {
-            return beacon.getPersistentDataContainer().has(plugin.getTeleporterKey());
-        }
-        return false;
-    }
 
 }

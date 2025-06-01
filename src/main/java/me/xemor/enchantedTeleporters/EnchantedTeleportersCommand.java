@@ -1,6 +1,8 @@
 package me.xemor.enchantedTeleporters;
 
 import jakarta.inject.Inject;
+import me.xemor.enchantedTeleporters.comparators.TeleporterComparator;
+import me.xemor.enchantedTeleporters.comparators.VanillaTeleporterComparator;
 import me.xemor.enchantedTeleporters.configs.ConfigHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -18,6 +20,8 @@ public class EnchantedTeleportersCommand {
 
     @Inject
     private ConfigHandler configHandler;
+    @Inject
+    private TeleporterComparator comparator;
 
     @Subcommand("reload")
     @CommandPermission("enchantedteleporters.reload")
@@ -29,7 +33,11 @@ public class EnchantedTeleportersCommand {
     @Subcommand("give")
     @CommandPermission("enchantedteleporters.give")
     public void give(CommandActor actor, Player target, @Default("1") int amount) {
-        ItemStack teleporter = configHandler.getTeleporter().clone();
+        if (!(comparator instanceof VanillaTeleporterComparator comparator)) {
+            actor.reply("This server is not using EnchantedTeleporters in vanilla mode, please use the respective plugin hook to acquire teleporters.");
+            return;
+        }
+        ItemStack teleporter = configHandler.getTeleporter(comparator).clone();
         if (amount > 64) {
             actor.reply("You can't give more than 64 teleporters");
             return;

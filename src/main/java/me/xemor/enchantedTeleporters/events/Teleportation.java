@@ -5,9 +5,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import me.xemor.enchantedTeleporters.CooldownHandler;
 import me.xemor.enchantedTeleporters.EnchantedTeleporters;
+import me.xemor.enchantedTeleporters.comparators.TeleporterComparator;
 import me.xemor.enchantedTeleporters.configs.ConfigHandler;
 import org.bukkit.Location;
-import org.bukkit.block.Beacon;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,6 +24,8 @@ public class Teleportation implements Listener {
     private ConfigHandler configHandler;
     @Inject
     private EnchantedTeleporters plugin;
+    @Inject
+    private TeleporterComparator comparator;
     private final CooldownHandler cooldownHandler = new CooldownHandler("");
 
     @EventHandler
@@ -31,11 +33,11 @@ public class Teleportation implements Listener {
         Location location = event.getFrom();
         Block beacon = location.add(0, -1, 0).getBlock();
         Player player = event.getPlayer();
-        if (isTeleporter(beacon)) {
+        if (comparator.isTeleporter(beacon)) {
             for (int i = location.getBlockY() + 1; i < player.getWorld().getMaxHeight(); i++) {
                 location.setY(i);
                 Block block = location.getBlock();
-                if (isTeleporter(block)) {
+                if (comparator.isTeleporter(block)) {
                     teleport(player, location);
                     return;
                 }
@@ -49,11 +51,11 @@ public class Teleportation implements Listener {
             Player player = event.getPlayer();
             Location location = player.getLocation();
             Block beacon = location.add(0, -1, 0).getBlock();
-            if (isTeleporter(beacon)) {
+            if (comparator.isTeleporter(beacon)) {
                 for (int i = beacon.getLocation().getBlockY() - 1; i >= player.getWorld().getMinHeight(); i--) {
                     location.setY(i);
                     Block block = location.getBlock();
-                    if (isTeleporter(block)) {
+                    if (comparator.isTeleporter(block)) {
                         teleport(player, location);
                         return;
                     }
@@ -70,12 +72,12 @@ public class Teleportation implements Listener {
             location = location.add(0, -1, 0);
             Block block = location.getBlock();
             if (!cooldownHandler.isCooldownOver(player.getUniqueId())) return;
-            if (isTeleporter(block)) {
+            if (comparator.isTeleporter(block)) {
                 float rotation = player.getEyeLocation().getYaw();
                 Vector direction = simplifyYaw(rotation);
                 for (int i = 0; i <= 90; i++) {
                     location = location.add(direction);
-                    if (isTeleporter(location.getBlock())) {
+                    if (comparator.isTeleporter(location.getBlock())) {
                         cooldownHandler.startCooldown(0.5, player.getUniqueId());
                         teleport(player, location);
                         return;
@@ -84,13 +86,6 @@ public class Teleportation implements Listener {
                 player.sendActionBar(configHandler.getSidewaysTeleportError());
             }
         }
-    }
-
-    private boolean isTeleporter(Block block) {
-        if (block.getState() instanceof Beacon beacon) {
-            return beacon.getPersistentDataContainer().has(plugin.getTeleporterKey());
-        }
-        return false;
     }
 
     private void teleport(Player player, Location tpLocation) {

@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import me.xemor.configurationdata.ConfigurationData;
 import me.xemor.enchantedTeleporters.EnchantedTeleporters;
+import me.xemor.enchantedTeleporters.comparators.VanillaTeleporterComparator;
 import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -36,10 +37,10 @@ public class ConfigHandler {
         }
     }
 
-    public ItemStack getTeleporter() {
+    public ItemStack getTeleporter(VanillaTeleporterComparator comparator) {
         ItemStack clonedTeleporter = config.getTeleporter().clone();
         ItemMeta itemMeta = clonedTeleporter.getItemMeta();
-        itemMeta.getPersistentDataContainer().set(plugin.getTeleporterKey(), PersistentDataType.BOOLEAN, true);
+        itemMeta.getPersistentDataContainer().set(comparator.getTeleporterKey(), PersistentDataType.BOOLEAN, true);
         clonedTeleporter.setItemMeta(itemMeta);
         return clonedTeleporter;
     }

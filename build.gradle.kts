@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.xemor"
-version = "1.0.0"
+version = "1.1.0"
 java.sourceCompatibility = JavaVersion.VERSION_21
 java.targetCompatibility = JavaVersion.VERSION_21
 
@@ -22,6 +22,7 @@ repositories {
     maven("https://repo.papermc.io/repository/maven-public/") {
         name = "papermc-repo"
     }
+    maven("https://repo.nexomc.com/releases")
 }
 
 dependencies {
@@ -30,6 +31,7 @@ dependencies {
     compileOnly("com.fasterxml.jackson.core:jackson-core:2.18.0")
     compileOnly("com.fasterxml.jackson.core:jackson-databind:2.18.2")
     compileOnly("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.7.0")
+    compileOnly("com.nexomc:nexo:1.6.0")
     implementation("me.xemor:configurationdata:4.4.1")
     implementation("me.xemor:foliahacks:1.7.5")
     implementation("space.arim.morepaperlib:morepaperlib:0.4.3")

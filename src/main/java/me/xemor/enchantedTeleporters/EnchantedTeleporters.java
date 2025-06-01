@@ -2,11 +2,20 @@ package me.xemor.enchantedTeleporters;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import me.xemor.enchantedTeleporters.configs.ConfigHandler;
+import com.nexomc.nexo.api.events.NexoMechanicsRegisteredEvent;
+import com.nexomc.nexo.mechanics.MechanicsManager;
+import me.xemor.enchantedTeleporters.comparators.ComparatorProvider;
+import me.xemor.enchantedTeleporters.comparators.NexoTeleporterComparator;
+import me.xemor.enchantedTeleporters.comparators.TeleporterComparator;
+import me.xemor.enchantedTeleporters.comparators.VanillaTeleporterComparator;
 import me.xemor.enchantedTeleporters.events.PlaceOrBreakTeleporter;
 import me.xemor.enchantedTeleporters.events.Teleportation;
+import me.xemor.enchantedTeleporters.nexo.TeleporterMechanicFactory;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.bukkit.BukkitLamp;
@@ -15,7 +24,6 @@ import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 public final class EnchantedTeleporters extends JavaPlugin {
 
     private Injector injector;
-    private NamespacedKey teleporterKey = new NamespacedKey(this, "is-teleporter");
 
     @Override
     public void onEnable() {
@@ -24,8 +32,10 @@ public final class EnchantedTeleporters extends JavaPlugin {
 
         initializeMetrics();
 
+        TeleporterComparator comparator = setupComparator();
+
         injector = Guice.createInjector(
-                new EnchantedTeleportersModule(this)
+                new EnchantedTeleportersModule(this, comparator)
         );
 
         PlaceOrBreakTeleporter placeOrBreakTeleporter = injector.getInstance(PlaceOrBreakTeleporter.class);
@@ -39,14 +49,25 @@ public final class EnchantedTeleporters extends JavaPlugin {
         lamp.register(teleportersCommand);
     }
 
+    public TeleporterComparator setupComparator() {
+        ComparatorProvider provider = Bukkit.getPluginManager().isPluginEnabled("Nexo") ? ComparatorProvider.NEXO : ComparatorProvider.VANILLA;
+        getLogger().info("EnchantedTeleporters launching in %s mode".formatted(provider.name()));
+        TeleporterComparator comparator;
+        TeleporterMechanicFactory teleporterMechanicFactory = new TeleporterMechanicFactory();
+        Bukkit.getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void nRegister(NexoMechanicsRegisteredEvent event) {
+                MechanicsManager.INSTANCE.registerMechanicFactory(teleporterMechanicFactory, true);
+            }
+        }, this);
+        if (provider == ComparatorProvider.NEXO) comparator = new NexoTeleporterComparator(teleporterMechanicFactory);
+        else comparator = new VanillaTeleporterComparator(this);
+        return comparator;
+    }
+
     public void initializeMetrics() {
         int pluginId = 25959;
         Metrics metrics = new Metrics(this, pluginId);
-    }
-
-
-    public NamespacedKey getTeleporterKey() {
-        return teleporterKey;
     }
 
     public Injector getInjector() {
